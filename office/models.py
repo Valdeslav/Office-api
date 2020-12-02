@@ -10,9 +10,5 @@ class Room(models.Model):
     class Meta:
         ordering = ('number',)
 
-
-class Person(models.Model):
-    name = models.CharField(max_length=100)
-
-    class Meta:
-        ordering = ('name',)
+    def __str__(self):
+        return f"room {self.number}"
