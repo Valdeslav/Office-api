@@ -3,7 +3,7 @@ from django.core.validators import MaxValueValidator
 
 
 class Room(models.Model):
-    number = models.PositiveIntegerField(db_index=True)
+    number = models.PositiveIntegerField(db_index=True, unique=True)
     seats_num = models.PositiveIntegerField(
         validators=[MaxValueValidator(30, message="Number of seats must be lower than 30"), ])
 
