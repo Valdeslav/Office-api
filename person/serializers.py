@@ -3,7 +3,7 @@ from .models import Person
 
 
 class PersonSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=100)
 
     def create(self, validated_data):
