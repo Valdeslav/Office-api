@@ -27,8 +27,6 @@ class ReservationView(APIView):
         if serializer.is_valid(raise_exception=True):
             reservation = serializer.save()
 
-            reservations = Reservation.objects.filter(person=reservation.person)
-
         return Response(reservation.save_reserv('create'))
 
     def put(self, request, res_id=0):
@@ -41,3 +39,11 @@ class ReservationView(APIView):
         if serializer.is_valid(raise_exception=True):
             reservation = serializer.save()
         return Response(reservation.save_reserv('update'))
+
+    def delete(self, request, res_id):
+        reservation = get_object_or_404(Reservation.objects.all(), id=res_id)
+        reservation.delete()
+        return Response(
+            {"message": f"Reservation with id '{res_id}' has been deleted"},
+            status=204
+        )

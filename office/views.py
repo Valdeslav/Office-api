@@ -2,9 +2,8 @@ from datetime import datetime
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import get_object_or_404
-from django.db.utils import IntegrityError
-from django.http import Http404
+from rest_framework.generics import ListCreateAPIView, \
+    RetrieveUpdateDestroyAPIView, ListAPIView, GenericAPIView, get_object_or_404
 
 from reservation.models import Reservation
 from person.serializers import PersonSerializer
@@ -13,63 +12,14 @@ from .models import Room
 from .serializers import RoomSerializer
 
 
-class RoomView(APIView):
-    def get(self, request, number=0):
-        if number:
-            room = get_object_or_404(Room.objects.all(), number=number)
-            serializer = RoomSerializer(room)
-            return Response({'room': serializer.data})
+class RoomView(ListCreateAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
 
-        rooms = Room.objects.all()
-        serializer = RoomSerializer(rooms, many=True)
-        return Response({'rooms': serializer.data})
 
-    def post(self, request):
-
-        room = request.data.get('room')
-        serializer = RoomSerializer(data=room)
-        if serializer.is_valid(raise_exception=True):
-            try:
-                room_saved = serializer.save()
-            except IntegrityError:
-                return Response(
-                    {'error': f"Room with number {room['number']} is already exist"},
-                    status=409
-                )
-
-        return Response(
-            {'success': f"Room '{room_saved}' created successfully"}
-        )
-
-    def put(self, request, number=0):
-        if not number:
-            raise Http404
-
-        saved_room = get_object_or_404(Room.objects.all(), number=number)
-        data = request.data.get('room')
-        serializer = RoomSerializer(instance=saved_room, data=data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            try:
-                room_saved = serializer.save()
-            except IntegrityError:
-                return Response(
-                    {f'error': f"Room with number {data['number']} is already exist"},
-                    status=400
-                )
-
-        return Response(
-            {"success": f"Room '{room_saved}' updated successfully"}
-        )
-
-    def delete(self, request, number=0):
-        if not number:
-            raise Http404
-        room = get_object_or_404(Room.objects.all(), number=number)
-        room.delete()
-        return Response(
-            {"message": f"Room with id '{number}' has been deleted"},
-            status=204
-        )
+class SingleRoomView(RetrieveUpdateDestroyAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
 
 
 class FreeRoomView(APIView):

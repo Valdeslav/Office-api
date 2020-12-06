@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 from office.models import Room
 from person.models import Person
@@ -16,8 +17,7 @@ class Reservation(models.Model):
     # check if seats are available
     def check_seats(self):
         taken_seats = Reservation.objects.filter(
-            id__lt=self.id,
-            id__gt=self.id,
+            ~Q(id=self.id),
             room=self.room,
             start_date__lte=self.end_date,
             end_date__gte=self.start_date

@@ -9,16 +9,10 @@ from person.models import Person
 from .models import Reservation
 
 
-class ReservSerializer(serializers.Serializer):
-    id = serializers.IntegerField(label='ID', read_only=True)
-    room = serializers.PrimaryKeyRelatedField(queryset=Room.objects.all())
-    start_date = serializers.DateField(
-        validators=[
-
-        ]
-    )
-    end_date = serializers.DateField()
-    person = serializers.PrimaryKeyRelatedField(queryset=Person.objects.all())
+class ReservSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reservation
+        fields = ('id', 'room', 'start_date', 'end_date', 'person')
 
     def validate(self, data):
         if data['start_date'] > data['end_date']:
@@ -30,14 +24,3 @@ class ReservSerializer(serializers.Serializer):
                 {"start_date": "start_date must be greater than or equal to current date"}
             )
         return data
-
-    def create(self, validated_data):
-        return Reservation(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.room = validated_data.get('room', instance.room)
-        instance.start_date = validated_data.get('start_date', instance.start_date)
-        instance.end_date = validated_data.get('end_date', instance.end_date)
-        instance.person = validated_data.get('person', instance.person)
-        return instance
-
