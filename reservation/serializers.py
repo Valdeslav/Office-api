@@ -22,19 +22,22 @@ class ReservSerializer(serializers.Serializer):
 
     def validate(self, data):
         if data['start_date'] > data['end_date']:
-            raise serializers.ValidationError({"end_date": "end_date must be greater than or equal to start_date"})
+            raise serializers.ValidationError(
+                {"end_date": "end_date must be greater than or equal to start_date"}
+            )
         if datetime.today().date() > data['start_date']:
-            raise serializers.ValidationError({"start_date": "start_date must be greater than or equal to current date"})
+            raise serializers.ValidationError(
+                {"start_date": "start_date must be greater than or equal to current date"}
+            )
         return data
 
     def create(self, validated_data):
-        return Reservation.objects.create(**validated_data)
+        return Reservation(**validated_data)
 
     def update(self, instance, validated_data):
         instance.room = validated_data.get('room', instance.room)
         instance.start_date = validated_data.get('start_date', instance.start_date)
         instance.end_date = validated_data.get('end_date', instance.end_date)
         instance.person = validated_data.get('person', instance.person)
-        instance.save()
         return instance
 

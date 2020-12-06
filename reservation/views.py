@@ -10,9 +10,9 @@ from .serializers import ReservSerializer
 
 
 class ReservationView(APIView):
-    def get(self, request, id=0):
-        if id:
-            reservation = get_object_or_404(Reservation.objects.all(), id=id)
+    def get(self, request, res_id=0):
+        if res_id:
+            reservation = get_object_or_404(Reservation.objects.all(), id=res_id)
             serializer = ReservSerializer(reservation)
             return Response({'reservation': serializer.data})
 
@@ -21,9 +21,23 @@ class ReservationView(APIView):
         return Response({'reservations': serializer.data})
 
     def post(self, request):
-        reservation = request.data.get('reservation')
-        serializer = ReservSerializer(data=reservation)
+        reserv_json = request.data.get('reservation')
+        serializer = ReservSerializer(data=reserv_json)
+
         if serializer.is_valid(raise_exception=True):
-            reservations = Reservation.objects.filter()
-            reservation_saved = serializer.save()
-        return Response({'success': f"Reservation '{reservation_saved}' created successfully"})
+            reservation = serializer.save()
+
+            reservations = Reservation.objects.filter(person=reservation.person)
+
+        return Response(reservation.save_reserv('create'))
+
+    def put(self, request, res_id=0):
+        if not res_id:
+            raise Http404
+
+        saved_reservation = get_object_or_404(Reservation.objects.all(), id=res_id)
+        data = request.data.get('reservation')
+        serializer = ReservSerializer(instance=saved_reservation, data=data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            reservation = serializer.save()
+        return Response(reservation.save_reserv('update'))

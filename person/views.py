@@ -28,7 +28,9 @@ class PersonView(APIView):
         serializer = PersonSerializer(data=person)
         if serializer.is_valid(raise_exception=True):
                 person_saved = serializer.save()
-        return Response({'success': f"Person '{person_saved}' created successfully"})
+        return Response(
+            {'success': f"Person '{person_saved}' created successfully"}
+        )
 
     def put(self, request, id=0):
         if not id:
@@ -39,7 +41,9 @@ class PersonView(APIView):
         if serializer.is_valid(raise_exception=True):
             person_saved = serializer.save()
 
-        return Response({"success": f"Person '{person_saved}' updated successfully"})
+        return Response(
+            {"success": f"Person '{person_saved}' updated successfully"}
+        )
 
     def delete(self, request, id=0):
         if not id:
@@ -47,7 +51,10 @@ class PersonView(APIView):
 
         person = get_object_or_404(Person.objects.all(), id=id)
         person.delete()
-        return Response({"message": f"Person with id '{id}' has been deleted"}, status=204)
+        return Response(
+            {"message": f"Person with id '{id}' has been deleted"},
+            status=204
+        )
 
 
 class ReservInformationView(APIView):
@@ -60,7 +67,10 @@ class ReservInformationView(APIView):
             try:
                 date = datetime.strptime(req_date, "%Y-%m-%d")
             except ValueError:
-                return Response({"error": "date does not match format '%Y-%m-%d'"}, status=400)
+                return Response(
+                    {"error": "date does not match format '%Y-%m-%d'"},
+                    status=400
+                )
             reservations = reservations.filter(start_date__lte=date, end_date__gte=date)
 
         data = ReservSerializer(reservations, partial=True, many=True).data
